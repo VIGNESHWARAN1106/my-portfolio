@@ -16,6 +16,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Close mobile nav when clicking outside or pressing Escape
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest("#sidebar") && sidebarNav.classList.contains("open")) {
+            sidebarNav.classList.remove("open");
+            menuToggle.setAttribute("aria-expanded", "false");
+        }
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && sidebarNav.classList.contains("open")) {
+            sidebarNav.classList.remove("open");
+            menuToggle.setAttribute("aria-expanded", "false");
+        }
+    });
+
     /* ---------------- Scroll progress + scroll-up button ---------------- */
     const scrollProgress = document.getElementById("scrollProgress");
     const scrollUpBtn = document.getElementById("scrollUp");
@@ -149,6 +164,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const carouselWrap = document.querySelector(".carousel-wrap");
     carouselWrap.addEventListener("mouseenter", stopAutoplay);
     carouselWrap.addEventListener("mouseleave", startAutoplay);
+
+    /* Touch swipe support for mobile */
+    let touchStartX = 0;
+    let touchEndX = 0;
+    track.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        stopAutoplay();
+    }, { passive: true });
+
+    track.addEventListener("touchend", (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 45) {
+            if (diff > 0) goTo(current + 1);
+            else goTo(current - 1);
+        }
+        startAutoplay();
+    }, { passive: true });
 
     goTo(0);
     startAutoplay();
